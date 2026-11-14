@@ -95,3 +95,5 @@ fonts, icons, samples, the FM kernel) carry their own licences, and those are li
 
 Gnomad is made by Kyle Palaniuk. It isn't affiliated with or endorsed by M-VAVE or Hügelton Instruments.
 FM-1 is a product of M-VAVE. "Felucca" and "Hügelton Instruments" are Hügelton's names.
+
+You can also try Gnomad Firmware in the browser, no flashing needed, in the free community [FM-1 Emulator](https://fm1-emulator.atst.tools/).
