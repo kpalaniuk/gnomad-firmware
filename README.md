@@ -70,8 +70,9 @@ keyboard for your other music apps.
 
 ## Install
 
-See **[INSTALL.md](INSTALL.md)**. In short: Python 3, `mido` and `python-rtmidi`, then
-`python3 tools/fm1_install.py gnomad-v1-115e11e.fwsc`. You can download the package from this repository's
+**From the browser:** open <https://kpalaniuk.github.io/gnomad-firmware/> in Chrome or Edge, connect the FM-1
+by USB and press Install. Or see **[INSTALL.md](INSTALL.md)** for the command line: Python 3, `mido` and
+`python-rtmidi`, then `python3 tools/fm1_install.py gnomad-v1-115e11e.fwsc`. You can download the package from this repository's
 Releases. INSTALL.md also covers how to go back to M-VAVE's firmware or to Felucca. Please read its warning
 before you start.
 

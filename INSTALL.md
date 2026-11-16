@@ -1,6 +1,7 @@
 # Installing Gnomad on an FM-1 (no app needed)
 
-You need an M-VAVE FM-1, a USB data cable and a computer with Python 3. Installing takes about a minute.
+You need an M-VAVE FM-1, a USB data cable and a computer with Chrome or Edge (the browser installer), or
+Python 3 (the command-line installer). Installing takes about a minute.
 
 **Installing custom firmware is at your own risk.** Before you start, read "Going back" below, so you know
 what's proven and what isn't.
@@ -13,6 +14,28 @@ what's proven and what isn't.
 | `fm1_install.py` on **Linux** or **Windows** | **Not tested by us.** It's the same Python script and the same MIDI library, so it should work. Please tell us if it does or doesn't. |
 | Going back to **M-VAVE's stock firmware** | **Not proven on real hardware yet.** See the warning below. |
 | Going back to **Felucca** | **Not tested by us.** |
+
+## The easy way: from the browser
+
+Open **<https://kpalaniuk.github.io/gnomad-firmware/>** in Chrome or Edge, connect the FM-1 by USB, press
+**Install** and allow MIDI when the browser asks. Don't unplug the FM-1 while it writes. That's all.
+
+It's Felucca's own web installer (`web/index_pkg.html`, `web/fm1ota.js`), the same update protocol as
+`fm1_install.py`, with this release's package built in. The page is made by
+`.github/workflows/build-and-pages.yml`: GitHub builds the package from this source with The Firmware Hub's
+shared workflow ([zvenson/fm1-build](https://github.com/zvenson/fm1-build)), which attests it, and the build must
+have the release's SHA-256 (`8bab81bb…`), byte for byte, before the page is published. To check the package
+yourself:
+
+```
+gh attestation verify gnomad-v1-115e11e.fwsc --repo kpalaniuk/gnomad-firmware \
+  --signer-workflow zvenson/fm1-build/.github/workflows/build.yml
+```
+
+It also works over Gnomad, and the page's "Return to official V15" finds an FM-1 that runs Gnomad
+(its port is named "Gnomad Synth V1"). Safari and Firefox have no Web MIDI with SysEx: use the steps below.
+
+## The command line: Python
 
 ## 1. Get the files
 
@@ -96,13 +119,8 @@ lost; 5 timeout; 6 wrong model, or a different identity after the install.
 
 ## Can I use Felucca's web installer instead?
 
-**No, not for Gnomad.** We read the code of Felucca 1.0.1's web installer, which is in this tree at
-`web/index_pkg.html` and `web/fm1ota.js`. It installs only the Felucca package it was built with, and its file
-picker accepts only the unmodified official M-VAVE V15 file. It has no way to load a different `.fwsc`.
-We haven't checked later versions of Felucca's page.
-
-Felucca's `BUILDING.md` describes a local copy of the page made for your own package
-(`web/make_site.py`, served from `localhost`). We haven't tested that with Gnomad.
+Felucca's own page installs only the Felucca package it was built with. Use Gnomad's page above: it is the
+same installer, made with `web/make_site.py --name Gnomad` around Gnomad's package.
 
 ---
 

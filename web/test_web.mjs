@@ -1224,6 +1224,14 @@ async function updater() {
   ok(e && e.code === "lost", "fm1ota.js: unplugged in step 1 -> error code 'lost'");
   const e2 = await new Updater({ inputs: new Map(), outputs: new Map() }).install(image, "FM-1_900").then(() => null, (x) => x);
   ok(e2 && e2.code === "notfound", "fm1ota.js: no device -> error code 'notfound'");
+
+  // a fork's port name (Gnomad's USB port is "Gnomad Synth V1"): install over it, progress by address
+  const dev4 = new FakeFM1(image);
+  dev4.boot("FM-1_900", "Gnomad Synth V1");
+  const fracs = [];
+  const got4 = await new Updater(dev4.access).install(image, "FM-1_900", (k, n, f) => { if (k === "write") fracs.push(f); });
+  ok(got4 === "FM-1_900" && dev4.bad === 0 && fracs.length && fracs.at(-1) === 6 * 512 / image.length,
+    "fm1ota.js: install over a port named 'Gnomad Synth V1', progress by address");
 }
 
 await editorMock();

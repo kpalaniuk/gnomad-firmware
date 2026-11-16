@@ -1,0 +1,84 @@
+# Gnomad, a fork of Felucca (see FORK.md). Not part of upstream Felucca.
+# Build the package from source on GitHub, and publish the browser installer on GitHub Pages.
+#   build: The Firmware Hub's shared workflow (zvenson/fm1-build@v1) runs tools/gn_ci_build.sh, which rebuilds
+#          release 12 ("GNOMAD V1 115e11", dated by its commit) byte for byte: the SHA-256 must be the one
+#          published on the release, or nothing is attested or published. fm1-build attests the package
+#          (gh attestation verify, the hub's "Built from source") and, on a tag vX, releases it.
+#   site:  web/make_site.py around that package: the installer (Web MIDI, Chrome or Edge) and the editor,
+#          after the web tests (the update protocol against a simulated FM-1)
+#   deploy: GitHub Pages (Settings -> Pages -> Source: GitHub Actions); not for pull requests
+# When firmware/ changes, change the commit, date and SHA-256 below to the new release's (or drop the check).
+name: build and pages
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    uses: zvenson/fm1-build/.github/workflows/build.yml@v1
+    permissions:
+      contents: write        # the release (tags only)
+      id-token: write        # the signing certificate
+      attestations: write    # the attestation
+    with:
+      build: |
+        SOURCE_DATE_EPOCH=1792535274 tools/gn_ci_build.sh 115e11e
+        echo "8bab81bb3cf3a197a7f9c7a4b07ae962a45a2ae90b85bd88ae267fc2a707d052  build/gnomad-v1-115e11e.fwsc" | sha256sum -c -
+      packages: build/gnomad-*.fwsc
+      test: python3 tests/install_test.py
+
+  site:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: packages
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Web tests
+        run: node web/test_web.mjs && node web/test_backup.mjs
+      - name: The site
+        run: |
+          (cd packages && sha256sum -c SHA256SUMS)
+          pkg=$(ls packages/build/gnomad-*.fwsc)
+          version=$(basename "$pkg" .fwsc); version=${version#gnomad-}
+          python3 web/make_site.py "$pkg" "$version" _site --name Gnomad \
+              --source "${{ github.server_url }}/${{ github.repository }}"
+          cp packages/SHA256SUMS _site/firmware/
+      - if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: site
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
