@@ -1,0 +1,9 @@
+{
+  "what": "A synth a kid can play in a minute: turn one knob to pick a picture (the Gnome, organ, bells, laser, whale, choir and more, 57 sounds), shape it with four coloured knobs, play along with grooves and record loops. Hold HOME and SAVE for the full synth: four tracks, a step sequencer, effects.",
+  "author": "Kyle Palaniuk",
+  "kinds": ["synth"],
+  "cheat": "https://gnomad.cc/map/",
+  "image": "docs/gnomad/card.png",
+  "color": "#FF5A36",
+  "sounds": "CC0: Versilian Studios VSCO-2 Community Edition and VCSL (Felucca's sample engine); every other sound and bank is Gnomad's own, made by Kyle Palaniuk"
+}
